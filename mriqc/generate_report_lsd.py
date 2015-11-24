@@ -9,17 +9,17 @@ from nipype.interfaces.utility import Function
 
 
 if __name__ == '__main__':
-    data_dir = "/scr/ilz2/LEMON_LSD/"
-    out_dir= "/scr/ilz2/LEMON_LSD/reports/lsd/"
+    data_dir = "/afs/cbs.mpg.de/projects/mar004_lsd-lemon-preproc/probands/"
+    out_dir= "/afs/cbs.mpg.de/projects/mar004_lsd-lemon-preproc/results/reports/lsd/"
     
     scans = ['rest1a', 'rest1b', 'rest2a', 'rest2b']
     wf = Workflow("reports")
-    wf.base_dir = data_dir+'working_dir_reports'
+    wf.base_dir ="/scr/tantalum1/QA/working_dir_reports"
     
     
     for scan in scans:
         print scan
-        with open('/scr/ilz2/LEMON_LSD/reports_lsd_%s.txt'%(scan), 'r') as f:
+        with open('/scr/ilz2/LEMON_LSD/all_lsd.txt', 'r') as f:
             subjects = [line.strip() for line in f]
         
         subjects.sort()
@@ -62,7 +62,8 @@ if __name__ == '__main__':
             report = Node(Function(input_names=['subject_id', 
                                                  'tsnr_file', 
                                                  'realignment_parameters_file', 
-                                                 'mean_epi_file',
+                                                 'parameter_source',
+						 'mean_epi_file',
                                                  'mean_epi_uncorrected_file',
                                                  'wm_file', 
                                                  'mask_file', 
@@ -91,5 +92,6 @@ if __name__ == '__main__':
             report.plugin_args={'override_specs': 'request_memory = 4000'}
             wf.add_nodes([report])
               
-    wf.run(plugin='MultiProc')
+    wf.run(plugin='MultiProc', plugin_args={'n_procs' : 10})
+    #wf.run()
          
